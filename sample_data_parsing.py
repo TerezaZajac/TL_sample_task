@@ -1,4 +1,6 @@
 import json 
+from datetime import datetime
+import pytz
 
 # Parsing přiložených dat: seznam lxc kontejnerů na testovacím serveru ve formátu JSON, výstupem pro každý kontejner: name, cpu a memory usage, created_at, status a všechny přiřazené IP adresy.
 
@@ -11,10 +13,15 @@ with open('./sample-data.json') as json_file:
         item['name'] = i['name']
         item['status'] = i['status']
         item['addresses'] = []
-        item['cpu'] = 0
-        item['memory_usage'] = 0
+        item['cpu'] = None
+        item['memory_usage'] = None
         item['created_at'] = i['created_at']
+        
+#convert datetime to UTC timestamp      
+        cre_at_date = datetime.strptime(i['created_at'], "%Y-%m-%dT%H:%M:%S%z")
 
+        item['created_at'] = cre_at_date.astimezone(pytz.UTC).strftime("%Y-%m-%dT%H:%M:%S%z")
+        
         # print ("")
         # print(i['name'])
 
@@ -28,8 +35,10 @@ with open('./sample-data.json') as json_file:
                     for x in address_list:
                         item['addresses'].append(x['address'])
                         #print(x['address'])
-            item['memory_usage'] += (i['state']['memory']['usage']) 
-            item['cpu'] += (i['state']['cpu']['usage'])
+            item['memory_usage'] = i['state']['memory']['usage'] 
+            item['cpu'] = i['state']['cpu']['usage']
         response.append(item)
+
+
 
 print(response)
