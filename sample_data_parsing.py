@@ -1,5 +1,6 @@
-import json 
 from datetime import datetime
+import json 
+import os
 import pytz
 import re
 
@@ -40,5 +41,5 @@ with open('./sample-data.json') as json_file:
             item['cpu'] = i['state']['cpu']['usage']
         response.append(item)
 
-
-print(response)
+print(os.getenv('DB_USER'))
+#print(response)

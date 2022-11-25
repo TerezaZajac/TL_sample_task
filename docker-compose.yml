@@ -1,0 +1,28 @@
+version: "3.1"
+
+services:
+  python_service:
+    build: .
+    volumes:
+      - .:/root
+    environment:
+      - DB_NAME=tl_data
+      - DB_USER=develop
+      - DB_PASSWORD=develop
+
+  db:
+    image: mysql:8.0
+    environment:
+      - MYSQL_DATABASE=tl_data
+      - MYSQL_ROOT_PASSWORD=toor
+      - MYSQL_USER=develop
+      - MYSQL_PASSWORD=develop
+    ports:
+      - 3307:3306
+    volumes:
+      - db:/var/lib/mysql
+    
+    
+volumes:
+  db:
+    driver: local
