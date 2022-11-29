@@ -1,5 +1,6 @@
 from datetime import datetime
 import json 
+import mysql.connector
 import os
 import pytz
 import re
@@ -17,14 +18,11 @@ with open('./sample-data.json') as json_file:
         item['addresses'] = []
         item['cpu'] = None
         item['memory_usage'] = None
-        
-#convert datetime to UTC timestamp      
-        cre_at_date = datetime.strptime(i['created_at'], "%Y-%m-%dT%H:%M:%S%z")
 
-        item['created_at'] = cre_at_date.astimezone(pytz.UTC).strftime("%Y-%m-%dT%H:%M:%S%z")
-        
-        # print ("")
-        # print(i['name'])
+        #convert datetime to UTC timestamp
+        cre_at_date = datetime.strptime(i['created_at'], "%Y-%m-%dT%H:%M:%S%z")
+        item['created_at'] = cre_at_date.astimezone(pytz.UTC)
+        # item['created_at'] = cre_at_date.astimezone(pytz.UTC).strftime("%Y-%m-%dT%H:%M:%S%z")
 
         if i['status'] == 'Running':
             for address_key in i['state']['network']:
@@ -34,12 +32,32 @@ with open('./sample-data.json') as json_file:
                     address_list = i['state']['network'][address_key][addd_key]
 
                     for x in address_list:
+                        # append only IPv4
                         if re.match("^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$", x['address']):
                             item['addresses'].append(x['address'])
                             
             item['memory_usage'] = i['state']['memory']['usage'] 
             item['cpu'] = i['state']['cpu']['usage']
+
         response.append(item)
 
-print(os.getenv('DB_USER'))
-#print(response)
+mydb = mysql.connector.connect(
+    host=os.getenv('DB_HOST'),
+    user=os.getenv('DB_USER'),
+    password=os.getenv('DB_PASSWORD'),
+    database=os.getenv('DB_NAME')
+)
+
+mycursor = mydb.cursor()
+
+for container in response:
+    mycursor.execute(
+        "INSERT INTO container (name, status, created_at_utc, addresses, cpu, memory_usage) VALUES (%s, %s, %s, %s, %s, %s)", 
+        (container['name'], 
+        container['status'], 
+        container['created_at'].strftime("%Y-%m-%d %H:%M:%z"),
+        ', '.join(container['addresses']),
+        container['cpu'],
+        container['memory_usage'],
+        ))
+    mydb.commit()

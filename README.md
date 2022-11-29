@@ -6,10 +6,16 @@
 docker compose up
 ```
 
-## Log into python container
+## Run python parse
 ```
-docker compose exec python_service bash
+docker compose exec python_service python sample_data_parsing.py
 ```
+
+MySQL is exposed to
+port: 3307
+user: develop
+password: develop
+
 
 ## Log into database container
 ```

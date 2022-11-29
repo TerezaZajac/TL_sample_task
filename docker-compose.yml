@@ -6,6 +6,7 @@ services:
     volumes:
       - .:/root
     environment:
+      - DB_HOST=db
       - DB_NAME=tl_data
       - DB_USER=develop
       - DB_PASSWORD=develop
@@ -21,6 +22,7 @@ services:
       - 3307:3306
     volumes:
       - db:/var/lib/mysql
+      - "./schema.sql:/docker-entrypoint-initdb.d/1.sql"
     
     
 volumes:
