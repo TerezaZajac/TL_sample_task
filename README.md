@@ -12,8 +12,11 @@ docker compose exec python_service python sample_data_parsing.py
 ```
 
 MySQL is exposed to
+
 port: 3307
+
 user: develop
+
 password: develop
 
 
