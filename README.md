@@ -8,7 +8,7 @@ docker compose up
 
 ## Run python parse
 ```
-docker compose exec python_service python sample_data_parsing.py
+docker compose exec python_service python sample_data_parsing.py -c site.conf
 ```
 
 MySQL is exposed to
